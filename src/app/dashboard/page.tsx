@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import Navigation from '@/components/Navigation';
+import { useUser } from '@/lib/hooks/useUser';
 import styles from './dashboard.module.css';
 
 // Mock data - replace with Supabase data
@@ -24,6 +26,7 @@ const mockRenewal = {
 };
 
 export default function DashboardPage() {
+    const { user } = useUser();
     const today = new Date();
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay());
@@ -42,29 +45,18 @@ export default function DashboardPage() {
         return date.toDateString() === today.toDateString();
     };
 
+    // Get user's first name from metadata or email
+    const userName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'there';
+
     return (
         <div className={styles.dashboardPage}>
-            {/* Navigation */}
-            <nav className="nav">
-                <div className="container nav-container">
-                    <Link href="/" className="nav-logo">
-                        <span style={{ fontSize: '1.5rem' }}>⚡</span>
-                        Principle Planner
-                    </Link>
-                    <ul className="nav-links">
-                        <li><Link href="/mission-builder" className="nav-link">Mission</Link></li>
-                        <li><Link href="/circle-of-control" className="nav-link">Circle</Link></li>
-                        <li><Link href="/planner" className="nav-link">Planner</Link></li>
-                        <li><Link href="/renewal" className="nav-link">Renewal</Link></li>
-                    </ul>
-                </div>
-            </nav>
+            <Navigation />
 
             <div className="container">
                 {/* Welcome Header */}
                 <div className={styles.header}>
                     <div>
-                        <h1>Good {today.getHours() < 12 ? 'Morning' : today.getHours() < 18 ? 'Afternoon' : 'Evening'}! 👋</h1>
+                        <h1>Good {today.getHours() < 12 ? 'Morning' : today.getHours() < 18 ? 'Afternoon' : 'Evening'}, {userName}! 👋</h1>
                         <p>Week of {weekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>
                     </div>
                     <Link href="/planner/weekly-setup" className="btn btn-primary">

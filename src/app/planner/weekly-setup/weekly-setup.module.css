@@ -1,0 +1,86 @@
+/* Weekly Setup Page Styles */
+
+.container {
+    min-height: 100vh;
+    padding-bottom: var(--space-3xl);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2xl) 0;
+}
+
+.header h1 {
+    margin-bottom: var(--space-xs);
+}
+
+.header p {
+    color: var(--text-secondary);
+}
+
+.setupContent {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.stepList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    margin-top: var(--space-xl);
+}
+
+.step {
+    display: flex;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+}
+
+.step:hover {
+    border-color: var(--primary-400);
+    transform: translateY(-2px);
+}
+
+.stepNumber {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-400);
+    flex-shrink: 0;
+}
+
+.stepContent h3 {
+    margin-bottom: var(--space-sm);
+    color: var(--text-primary);
+}
+
+.stepContent p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+    line-height: 1.6;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--border-glass);
+}

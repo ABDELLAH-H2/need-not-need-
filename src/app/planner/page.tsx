@@ -1,53 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import styles from './planner.module.css';
+import type { Database } from '@/lib/database.types';
 
-// Mock roles
-const mockRoles = [
-    { id: '1', name: 'Professional', icon: '💼', color: '#6366f1' },
-    { id: '2', name: 'Parent', icon: '👨‍👧', color: '#22d3ee' },
-    { id: '3', name: 'Friend', icon: '🤝', color: '#10b981' },
-    { id: '4', name: 'Self', icon: '🧘', color: '#f59e0b' },
-];
-
-interface BigRock {
-    id: string;
-    title: string;
-    roleId: string;
-    scheduledDay: number | null;
-    isComplete: boolean;
-}
-
-interface Task {
-    id: string;
-    title: string;
-    quadrant: 'q1' | 'q2' | 'q3' | 'q4';
-    scheduledDay: number | null;
-    isComplete: boolean;
-}
+type Role = Database['public']['Tables']['roles']['Row'];
+type BigRock = Database['public']['Tables']['big_rocks']['Row'];
+type Task = Database['public']['Tables']['tasks']['Row'];
 
 export default function PlannerPage() {
-    const [bigRocks, setBigRocks] = useState<BigRock[]>([
-        { id: '1', title: 'Complete project proposal', roleId: '1', scheduledDay: 1, isComplete: false },
-        { id: '2', title: 'Family dinner on Saturday', roleId: '2', scheduledDay: 6, isComplete: false },
-        { id: '3', title: 'Call James', roleId: '3', scheduledDay: 3, isComplete: false },
-        { id: '4', title: 'Morning workout routine', roleId: '4', scheduledDay: null, isComplete: false },
-    ]);
+    const supabase = createClient();
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [bigRocks, setBigRocks] = useState<BigRock[]>([]);
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [weeklyPlanId, setWeeklyPlanId] = useState<string | null>(null);
 
-    const [tasks, setTasks] = useState<Task[]>([
-        { id: '1', title: 'Reply to emails', quadrant: 'q3', scheduledDay: 1, isComplete: false },
-        { id: '2', title: 'Review quarterly goals', quadrant: 'q2', scheduledDay: 2, isComplete: false },
-    ]);
+    // Form State
+    const [newItemTitle, setNewItemTitle] = useState('');
+    const [newItemRole, setNewItemRole] = useState('');
+    const [newItemQuadrant, setNewItemQuadrant] = useState<'q1' | 'q2' | 'q3' | 'q4'>('q2');
+    const [showAddItem, setShowAddItem] = useState(false);
 
-    const [newRockTitle, setNewRockTitle] = useState('');
-    const [newRockRole, setNewRockRole] = useState('');
-    const [showAddRock, setShowAddRock] = useState(false);
-
+    // Date Logic
     const today = new Date();
     const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay());
+    weekStart.setDate(today.getDate() - today.getDay()); // Sunday start
+    weekStart.setHours(0, 0, 0, 0);
 
     const weekDays = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(weekStart);
@@ -56,41 +39,160 @@ export default function PlannerPage() {
             date: d,
             dayIndex: i,
             label: d.toLocaleDateString('en-US', { weekday: 'short' }),
-            dayNum: d.getDate()
+            dayNum: d.getDate(),
+            isoDate: d.toISOString().split('T')[0]
         };
     });
 
-    const getRoleById = (roleId: string) => mockRoles.find(r => r.id === roleId);
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.push('/auth/login');
+                return;
+            }
 
-    const toggleRockComplete = (id: string) => {
-        setBigRocks(prev => prev.map(rock =>
-            rock.id === id ? { ...rock, isComplete: !rock.isComplete } : rock
-        ));
+            // 1. Fetch Roles
+            const { data: rolesData } = await supabase
+                .from('roles')
+                .select('*')
+                .order('sort_order', { ascending: true });
+            if (rolesData) setRoles(rolesData);
+
+            // 2. Fetch or Create Weekly Plan
+            const weekStartStr = weekStart.toISOString().split('T')[0];
+            let { data: plan } = await supabase
+                .from('weekly_plans')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('week_start', weekStartStr)
+                .single();
+
+            if (!plan) {
+                const { data: newPlan, error } = await supabase
+                    .from('weekly_plans')
+                    .insert({
+                        user_id: user.id,
+                        week_start: weekStartStr
+                    })
+                    .select('id')
+                    .single();
+                
+                if (error) throw error;
+                plan = newPlan;
+            }
+
+            if (plan) {
+                setWeeklyPlanId(plan.id);
+
+                // 3. Fetch Big Rocks
+                const { data: rocksData } = await supabase
+                    .from('big_rocks')
+                    .select('*')
+                    .eq('weekly_plan_id', plan.id)
+                    .order('created_at', { ascending: true });
+                if (rocksData) setBigRocks(rocksData);
+            }
+
+            // 4. Fetch Tasks (Q1, Q3, Q4)
+            // Note: Tasks are currently not strictly linked to a weekly plan in schema,
+            // but we filter by date range or just show all active/incomplete ones?
+            // For now, let's fetch incomplete tasks or tasks scheduled this week.
+            const { data: tasksData } = await supabase
+                .from('tasks')
+                .select('*')
+                .eq('user_id', user.id)
+                .or(`is_complete.eq.false,scheduled_date.gte.${weekStartStr}`)
+                .order('created_at', { ascending: true });
+            
+            if (tasksData) setTasks(tasksData);
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [router, supabase, weekStart]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const getRoleById = (roleId: string | null) => roles.find(r => r.id === roleId);
+
+    const toggleRockComplete = async (id: string, currentStatus: boolean) => {
+        // Optimistic update
+        setBigRocks(prev => prev.map(r => r.id === id ? { ...r, isComplete: !currentStatus } : r));
+        await supabase.from('big_rocks').update({ is_complete: !currentStatus }).eq('id', id);
     };
 
-    const addBigRock = () => {
-        if (!newRockTitle.trim() || !newRockRole) return;
-
-        setBigRocks(prev => [...prev, {
-            id: Date.now().toString(),
-            title: newRockTitle,
-            roleId: newRockRole,
-            scheduledDay: null,
-            isComplete: false
-        }]);
-
-        setNewRockTitle('');
-        setNewRockRole('');
-        setShowAddRock(false);
+    const toggleTaskComplete = async (id: string, currentStatus: boolean) => {
+        setTasks(prev => prev.map(t => t.id === id ? { ...t, isComplete: !currentStatus } : t));
+        await supabase.from('tasks').update({ is_complete: !currentStatus }).eq('id', id);
     };
 
-    const scheduleRock = (rockId: string, dayIndex: number | null) => {
-        setBigRocks(prev => prev.map(rock =>
-            rock.id === rockId ? { ...rock, scheduledDay: dayIndex } : rock
-        ));
+    const addItem = async () => {
+        if (!newItemTitle.trim() || !weeklyPlanId) return;
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        try {
+            if (newItemQuadrant === 'q2') {
+                // Add Big Rock
+                const { data: newRock, error } = await supabase
+                    .from('big_rocks')
+                    .insert({
+                        weekly_plan_id: weeklyPlanId,
+                        role_id: newItemRole || null,
+                        title: newItemTitle,
+                        is_complete: false,
+                        scheduled_day: null
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                if (newRock) setBigRocks(prev => [...prev, newRock]);
+
+            } else {
+                // Add Task (Q1, Q3, Q4)
+                const { data: newTask, error } = await supabase
+                    .from('tasks')
+                    .insert({
+                        user_id: user.id,
+                        title: newItemTitle,
+                        quadrant: newItemQuadrant,
+                        is_complete: false,
+                        scheduled_date: null
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                if (newTask) setTasks(prev => [...prev, newTask]);
+            }
+
+            setNewItemTitle('');
+            setNewItemRole('');
+            setShowAddItem(false);
+        } catch (error) {
+            console.error('Error adding item:', error);
+            alert('Failed to add item. Please try again.');
+        }
     };
 
-    const unscheduledRocks = bigRocks.filter(r => r.scheduledDay === null);
+    const scheduleRock = async (rockId: string, dayIndex: number | null) => {
+        setBigRocks(prev => prev.map(r => r.id === rockId ? { ...r, scheduled_day: dayIndex } : r));
+        await supabase.from('big_rocks').update({ scheduled_day: dayIndex }).eq('id', rockId);
+    };
+
+    const unscheduledRocks = bigRocks.filter(r => r.scheduled_day === null);
+
+    if (loading) {
+        return <div className="container" style={{ paddingTop: '2rem' }}>Loading planner...</div>;
+    }
 
     return (
         <div className={styles.plannerPage}>
@@ -122,129 +224,158 @@ export default function PlannerPage() {
                 </div>
 
                 <div className={styles.plannerLayout}>
-                    {/* Big Rocks Container */}
+                    {/* Left Column: Big Rocks & Tasks */}
                     <div className={styles.bigRocksSection}>
+                        
+                        {/* Add Item Button */}
+                        {!showAddItem ? (
+                            <button
+                                className="btn btn-primary"
+                                style={{ width: '100%', marginBottom: '1rem' }}
+                                onClick={() => setShowAddItem(true)}
+                            >
+                                + Add Task or Big Rock
+                            </button>
+                        ) : (
+                            <div className={styles.addRockForm}>
+                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        className="input"
+                                        placeholder="What needs to be done?"
+                                        style={{ flex: 1 }}
+                                        value={newItemTitle}
+                                        onChange={(e) => setNewItemTitle(e.target.value)}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <select
+                                        className="input"
+                                        value={newItemQuadrant}
+                                        onChange={(e) => setNewItemQuadrant(e.target.value as any)}
+                                        style={{ flex: 1 }}
+                                    >
+                                        <option value="q2">Q2: Big Rock (Important, Not Urgent) ⭐</option>
+                                        <option value="q1">Q1: Urgent & Important 🔥</option>
+                                        <option value="q3">Q3: Urgent, Not Important 🔔</option>
+                                        <option value="q4">Q4: Neither 🗑️</option>
+                                    </select>
+                                    
+                                    {newItemQuadrant === 'q2' && (
+                                        <select
+                                            className="input"
+                                            value={newItemRole}
+                                            onChange={(e) => setNewItemRole(e.target.value)}
+                                            style={{ flex: 1 }}
+                                        >
+                                            <option value="">No Role</option>
+                                            {roles.map(role => (
+                                                <option key={role.id} value={role.id}>
+                                                    {role.icon} {role.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
+                                </div>
+                                <div className={styles.addRockActions}>
+                                    <button className="btn btn-primary" onClick={addItem}>
+                                        Add Item
+                                    </button>
+                                    <button className="btn btn-secondary" onClick={() => setShowAddItem(false)}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className={styles.sectionHeader}>
-                            <h2>🪨 Big Rocks</h2>
-                            <p>Schedule your most important goals first</p>
+                            <h2>🪨 Big Rocks (Q2)</h2>
+                            <p>Schedule these first!</p>
                         </div>
 
                         {/* Unscheduled Rocks */}
                         <div className={styles.unscheduledRocks}>
                             <h3>Unscheduled</h3>
                             <div className={styles.rocksList}>
-                                {unscheduledRocks.map(rock => {
-                                    const role = getRoleById(rock.roleId);
-                                    return (
-                                        <div
-                                            key={rock.id}
-                                            className={styles.rockCard}
-                                            draggable
-                                        >
+                                {unscheduledRocks.length === 0 ? (
+                                    <p className={styles.emptyText}>No unscheduled rocks.</p>
+                                ) : (
+                                    unscheduledRocks.map(rock => {
+                                        const role = getRoleById(rock.role_id);
+                                        return (
+                                            <div key={rock.id} className={styles.rockCard}>
+                                                <div className={styles.rockContent}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={rock.is_complete}
+                                                        onChange={() => toggleRockComplete(rock.id, rock.is_complete)}
+                                                    />
+                                                    <span className={rock.is_complete ? styles.completed : ''}>
+                                                        {rock.title}
+                                                    </span>
+                                                </div>
+                                                <div className={styles.rockMeta}>
+                                                    {role && (
+                                                        <span
+                                                            className={styles.roleTag}
+                                                            style={{ backgroundColor: `${role.color}20`, color: role.color }}
+                                                        >
+                                                            {role.icon} {role.name}
+                                                        </span>
+                                                    )}
+                                                    <select
+                                                        value=""
+                                                        onChange={(e) => scheduleRock(rock.id, parseInt(e.target.value))}
+                                                        className={styles.scheduleSelect}
+                                                    >
+                                                        <option value="">Schedule →</option>
+                                                        {weekDays.map(day => (
+                                                            <option key={day.dayIndex} value={day.dayIndex}>
+                                                                {day.label} {day.dayNum}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Other Tasks List (Q1, Q3, Q4) */}
+                        <div className={styles.sectionHeader} style={{ marginTop: '2rem' }}>
+                            <h2>📝 Other Tasks</h2>
+                        </div>
+                        <div className={styles.unscheduledRocks}>
+                             <div className={styles.rocksList}>
+                                {tasks.filter(t => !t.is_complete).length === 0 ? (
+                                    <p className={styles.emptyText}>No pending tasks.</p>
+                                ) : (
+                                    tasks.filter(t => !t.is_complete).map(task => (
+                                        <div key={task.id} className={styles.rockCard}>
                                             <div className={styles.rockContent}>
                                                 <input
                                                     type="checkbox"
-                                                    checked={rock.isComplete}
-                                                    onChange={() => toggleRockComplete(rock.id)}
+                                                    checked={task.is_complete}
+                                                    onChange={() => toggleTaskComplete(task.id, task.is_complete)}
                                                 />
-                                                <span className={rock.isComplete ? styles.completed : ''}>
-                                                    {rock.title}
+                                                <span style={{ flex: 1 }}>{task.title}</span>
+                                                <span className={styles.roleTag} style={{ 
+                                                    backgroundColor: task.quadrant === 'q1' ? '#fecaca' : 
+                                                                    task.quadrant === 'q3' ? '#fde68a' : '#e2e8f0',
+                                                    color: task.quadrant === 'q1' ? '#dc2626' : 
+                                                           task.quadrant === 'q3' ? '#d97706' : '#475569'
+                                                }}>
+                                                    {task.quadrant.toUpperCase()}
                                                 </span>
                                             </div>
-                                            <div className={styles.rockMeta}>
-                                                <span
-                                                    className={styles.roleTag}
-                                                    style={{ backgroundColor: `${role?.color}20`, color: role?.color }}
-                                                >
-                                                    {role?.icon} {role?.name}
-                                                </span>
-                                                <select
-                                                    value=""
-                                                    onChange={(e) => scheduleRock(rock.id, parseInt(e.target.value))}
-                                                    className={styles.scheduleSelect}
-                                                >
-                                                    <option value="">Schedule →</option>
-                                                    {weekDays.map(day => (
-                                                        <option key={day.dayIndex} value={day.dayIndex}>
-                                                            {day.label} {day.dayNum}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
                                         </div>
-                                    );
-                                })}
-
-                                {unscheduledRocks.length === 0 && !showAddRock && (
-                                    <p className={styles.emptyText}>All rocks are scheduled! 🎉</p>
-                                )}
-
-                                {/* Add New Rock Form */}
-                                {showAddRock ? (
-                                    <div className={styles.addRockForm}>
-                                        <input
-                                            type="text"
-                                            className="input"
-                                            placeholder="What's your big goal?"
-                                            value={newRockTitle}
-                                            onChange={(e) => setNewRockTitle(e.target.value)}
-                                        />
-                                        <select
-                                            className="input"
-                                            value={newRockRole}
-                                            onChange={(e) => setNewRockRole(e.target.value)}
-                                        >
-                                            <option value="">Select Role</option>
-                                            {mockRoles.map(role => (
-                                                <option key={role.id} value={role.id}>
-                                                    {role.icon} {role.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className={styles.addRockActions}>
-                                            <button className="btn btn-primary" onClick={addBigRock}>
-                                                Add Rock
-                                            </button>
-                                            <button className="btn btn-secondary" onClick={() => setShowAddRock(false)}>
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <button
-                                        className="btn btn-secondary"
-                                        style={{ width: '100%' }}
-                                        onClick={() => setShowAddRock(true)}
-                                    >
-                                        + Add Big Rock
-                                    </button>
+                                    ))
                                 )}
                             </div>
                         </div>
 
-                        {/* Eisenhower Matrix Hint */}
-                        <div className={styles.matrixHint}>
-                            <h4>💡 Remember the Eisenhower Matrix</h4>
-                            <div className={styles.quadrants}>
-                                <div className={styles.quadrant}>
-                                    <span className={styles.q1}>Q1</span>
-                                    <span>Urgent & Important</span>
-                                </div>
-                                <div className={styles.quadrant}>
-                                    <span className={styles.q2}>Q2</span>
-                                    <span>Important, Not Urgent ⭐</span>
-                                </div>
-                                <div className={styles.quadrant}>
-                                    <span className={styles.q3}>Q3</span>
-                                    <span>Urgent, Not Important</span>
-                                </div>
-                                <div className={styles.quadrant}>
-                                    <span className={styles.q4}>Q4</span>
-                                    <span>Neither</span>
-                                </div>
-                            </div>
-                            <p>Focus on Q2! These are your Big Rocks.</p>
-                        </div>
                     </div>
 
                     {/* Week Calendar */}
@@ -252,7 +383,7 @@ export default function PlannerPage() {
                         <h3>Week View</h3>
                         <div className={styles.calendarGrid}>
                             {weekDays.map(day => {
-                                const dayRocks = bigRocks.filter(r => r.scheduledDay === day.dayIndex);
+                                const dayRocks = bigRocks.filter(r => r.scheduled_day === day.dayIndex);
                                 const isToday = day.date.toDateString() === today.toDateString();
 
                                 return (
@@ -266,17 +397,17 @@ export default function PlannerPage() {
                                         </div>
                                         <div className={styles.dayContent}>
                                             {dayRocks.map(rock => {
-                                                const role = getRoleById(rock.roleId);
+                                                const role = getRoleById(rock.role_id);
                                                 return (
                                                     <div
                                                         key={rock.id}
-                                                        className={`${styles.scheduledRock} ${rock.isComplete ? styles.completed : ''}`}
-                                                        style={{ borderLeftColor: role?.color }}
+                                                        className={`${styles.scheduledRock} ${rock.is_complete ? styles.completed : ''}`}
+                                                        style={{ borderLeftColor: role?.color || '#cbd5e1' }}
                                                     >
                                                         <input
                                                             type="checkbox"
-                                                            checked={rock.isComplete}
-                                                            onChange={() => toggleRockComplete(rock.id)}
+                                                            checked={rock.is_complete}
+                                                            onChange={() => toggleRockComplete(rock.id, rock.is_complete)}
                                                         />
                                                         <span>{rock.title}</span>
                                                         <button

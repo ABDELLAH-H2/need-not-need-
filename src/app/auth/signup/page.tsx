@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase';
 import styles from '../login/auth.module.css';
 
 export default function SignupPage() {
@@ -13,6 +14,7 @@ export default function SignupPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,18 +34,63 @@ export default function SignupPage() {
         }
 
         try {
-            // TODO: Integrate with Supabase auth when credentials are provided
-            console.log('Signup attempt:', { fullName, email, password });
+            const supabase = createClient();
 
-            // Simulated success - redirect to mission builder
-            setTimeout(() => {
+            const { data, error: signUpError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                    },
+                },
+            });
+
+            if (signUpError) {
+                setError(signUpError.message);
+                setLoading(false);
+                return;
+            }
+
+            // Check if email confirmation is required
+            if (data.user && !data.session) {
+                setSuccess(true);
+                setLoading(false);
+                return;
+            }
+
+            // If session exists, user is logged in (email confirmation disabled)
+            if (data.session) {
                 router.push('/mission-builder');
-            }, 1000);
+                router.refresh();
+            }
         } catch (err) {
-            setError('Failed to create account. Please try again.');
+            setError('An unexpected error occurred');
             setLoading(false);
         }
     };
+
+    if (success) {
+        return (
+            <div className={styles.authPage}>
+                <div className={styles.authContainer}>
+                    <div className={styles.authCard}>
+                        <div className={styles.authHeader}>
+                            <span style={{ fontSize: '3rem' }}>✉️</span>
+                            <h1>Check Your Email</h1>
+                            <p>
+                                We've sent a confirmation link to <strong>{email}</strong>.
+                                Click the link to activate your account.
+                            </p>
+                        </div>
+                        <Link href="/auth/login" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
+                            Back to Login
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.authPage}>
