@@ -1,0 +1,354 @@
+/* Circle of Control Styles */
+
+.circlePage {
+    min-height: 100vh;
+    padding-bottom: var(--space-3xl);
+}
+
+.header {
+    text-align: center;
+    padding: var(--space-3xl) 0 var(--space-xl);
+}
+
+.header h1 {
+    margin: var(--space-md) 0;
+}
+
+.header p {
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--text-secondary);
+}
+
+/* Input Section */
+.inputSection {
+    display: flex;
+    gap: var(--space-md);
+    max-width: 600px;
+    margin: 0 auto var(--space-xl);
+}
+
+/* Unassigned Items */
+.unassignedSection {
+    max-width: 600px;
+    margin: 0 auto var(--space-2xl);
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+}
+
+.unassignedSection h3 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.unassignedList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.unassignedItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    cursor: grab;
+}
+
+.unassignedItem:active {
+    cursor: grabbing;
+}
+
+.itemActions {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.controlBtn,
+.noControlBtn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.controlBtn {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success);
+}
+
+.controlBtn:hover {
+    background: var(--success);
+    color: white;
+}
+
+.noControlBtn {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+}
+
+.noControlBtn:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* Circles Container */
+.circlesContainer {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-xl) 0;
+}
+
+/* Outer Circle (Cannot Control) */
+.outerCircle {
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: rgba(100, 116, 139, 0.1);
+    border: 2px solid var(--border-secondary);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+}
+
+/* Inner Circle (Can Control) */
+.innerCircle {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.15);
+    border: 2px solid var(--primary-500);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-glow);
+    z-index: 2;
+}
+
+.circleLabel {
+    position: absolute;
+    top: var(--space-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.innerCircle .circleLabel {
+    color: var(--primary-400);
+}
+
+.circleLabelIcon {
+    font-size: 1rem;
+}
+
+.circleCount {
+    background: var(--bg-glass);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.circleItems {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-height: 60%;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    justify-content: center;
+    padding: var(--space-md);
+}
+
+.outerCircle>.circleItems {
+    position: absolute;
+    top: var(--space-3xl);
+    left: var(--space-md);
+    right: var(--space-md);
+    bottom: auto;
+    transform: none;
+    max-height: 120px;
+    width: auto;
+}
+
+.concernItem,
+.controlItem {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    cursor: grab;
+    transition: all var(--transition-fast);
+}
+
+.concernItem {
+    background: rgba(100, 116, 139, 0.3);
+    border: 1px solid rgba(100, 116, 139, 0.5);
+    color: var(--text-secondary);
+}
+
+.controlItem {
+    background: rgba(99, 102, 241, 0.3);
+    border: 1px solid var(--primary-400);
+    color: var(--primary-300);
+}
+
+.removeBtn {
+    width: 18px;
+    height: 18px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.removeBtn:hover {
+    opacity: 1;
+}
+
+.emptyCircle {
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+/* Insights */
+.insights {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+    max-width: 600px;
+    margin: var(--space-2xl) auto;
+    padding: var(--space-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+}
+
+.insightCard {
+    text-align: center;
+    padding: var(--space-md) var(--space-xl);
+    border-right: 1px solid var(--border-glass);
+}
+
+.insightValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-400) 0%, var(--accent-400) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.insightLabel {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.insightMessage {
+    flex: 1;
+    padding-left: var(--space-lg);
+}
+
+.insightMessage p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Tips */
+.tips {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--space-xl);
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+}
+
+.tips h3 {
+    margin-bottom: var(--space-md);
+}
+
+.tips ul {
+    list-style: none;
+    padding: 0;
+}
+
+.tips li {
+    padding: var(--space-sm) 0;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.tips li:last-child {
+    border-bottom: none;
+}
+
+.tips strong {
+    color: var(--primary-400);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .outerCircle {
+        width: 350px;
+        height: 350px;
+    }
+
+    .innerCircle {
+        width: 180px;
+        height: 180px;
+    }
+
+    .inputSection {
+        flex-direction: column;
+    }
+
+    .insights {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .insightCard {
+        border-right: none;
+        border-bottom: 1px solid var(--border-glass);
+        padding-bottom: var(--space-md);
+    }
+
+    .insightMessage {
+        padding-left: 0;
+        padding-top: var(--space-md);
+    }
+}

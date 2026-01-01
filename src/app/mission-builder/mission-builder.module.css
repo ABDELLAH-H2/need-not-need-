@@ -1,0 +1,230 @@
+/* Mission Builder Styles */
+
+.builderPage {
+    min-height: 100vh;
+    padding-bottom: var(--space-3xl);
+}
+
+.stepContainer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: var(--space-xl);
+}
+
+.stepContent {
+    animation: fadeIn var(--transition-slow) ease;
+}
+
+.stepHeader {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.stepLabel {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--primary-400);
+    margin-bottom: var(--space-sm);
+}
+
+.stepHeader h2 {
+    margin-bottom: var(--space-sm);
+}
+
+.stepHeader p {
+    color: var(--text-secondary);
+}
+
+/* Question Card */
+.questionCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    backdrop-filter: blur(20px);
+}
+
+.questionLabel {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.hint {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    margin-top: var(--space-md);
+    font-style: italic;
+}
+
+/* Values Grid */
+.valuesGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+}
+
+.valueCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background: var(--bg-glass);
+    border: 2px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.valueCard:hover {
+    border-color: var(--primary-400);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.valueCard.selected {
+    border-color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.15);
+    box-shadow: var(--shadow-glow);
+}
+
+.valueIcon {
+    font-size: 1.5rem;
+}
+
+.valueLabel {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.selectionCount {
+    text-align: center;
+    margin-top: var(--space-lg);
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+/* Roles Grid */
+.rolesGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.roleCard {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding: var(--space-lg);
+    background: var(--bg-glass);
+    border: 2px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+}
+
+.roleCard:hover {
+    border-color: var(--primary-400);
+}
+
+.roleCard.selected {
+    border-color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.15);
+    box-shadow: var(--shadow-glow);
+}
+
+.roleIcon {
+    font-size: 1.5rem;
+}
+
+.roleLabel {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.roleDesc {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* Role Goals */
+.roleGoals {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.roleGoalCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+.roleGoalHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.roleGoalHeader h4 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.emptyState {
+    text-align: center;
+    padding: var(--space-3xl);
+    color: var(--text-tertiary);
+}
+
+/* Mission Preview */
+.missionPreview {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.missionTextarea {
+    min-height: 300px;
+    font-size: 1rem;
+    line-height: 1.8;
+    resize: vertical;
+}
+
+.missionActions {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-lg);
+}
+
+/* Step Navigation */
+.stepNav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--border-glass);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .valuesGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rolesGrid {
+        grid-template-columns: 1fr;
+    }
+}

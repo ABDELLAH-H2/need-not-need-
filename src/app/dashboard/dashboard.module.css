@@ -1,0 +1,224 @@
+/* Dashboard Styles */
+
+.dashboardPage {
+    min-height: 100vh;
+    padding-bottom: var(--space-3xl);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2xl) 0;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: var(--space-xs);
+}
+
+.header p {
+    color: var(--text-secondary);
+}
+
+/* Week Overview */
+.weekOverview {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+}
+
+.dayCell {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-align: center;
+    transition: all var(--transition-fast);
+}
+
+.dayCell:hover {
+    border-color: var(--border-primary);
+}
+
+.dayCell.today {
+    border-color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.dayLabel {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.todayBadge {
+    display: inline-block;
+    margin-top: var(--space-xs);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--primary-400);
+}
+
+/* Dashboard Grid */
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+/* Mission Card */
+.missionCard {
+    grid-column: span 2;
+}
+
+.missionText {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.editLink {
+    font-size: 0.875rem;
+    color: var(--primary-400);
+}
+
+/* Rocks Card */
+.rocksList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.rockItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--bg-glass);
+    border-radius: var(--radius-md);
+}
+
+.rockCheckbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-500);
+}
+
+.rockItem span.completed {
+    text-decoration: line-through;
+    color: var(--text-tertiary);
+}
+
+.rockRole {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    background: var(--bg-glass);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.emptyText {
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: var(--space-lg);
+}
+
+/* Roles Card */
+.rolesList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.roleItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-glass);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+}
+
+.roleIcon {
+    font-size: 1rem;
+}
+
+/* Renewal Card */
+.renewalBars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.renewalItem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.renewalItem span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Quick Actions */
+.quickActions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.actionCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xl);
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.actionIcon {
+    font-size: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .dashboardGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .missionCard {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .weekOverview {
+        grid-template-columns: repeat(7, 1fr);
+        overflow-x: auto;
+    }
+
+    .dayCell {
+        min-width: 60px;
+    }
+
+    .quickActions {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-md);
+    }
+}

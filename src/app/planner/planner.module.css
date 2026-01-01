@@ -1,0 +1,337 @@
+/* Planner Page Styles */
+
+.plannerPage {
+    min-height: 100vh;
+    padding-bottom: var(--space-3xl);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2xl) 0;
+}
+
+.header h1 {
+    margin-bottom: var(--space-xs);
+}
+
+.header p {
+    color: var(--text-secondary);
+}
+
+/* Planner Layout */
+.plannerLayout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: var(--space-xl);
+}
+
+/* Big Rocks Section */
+.bigRocksSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.sectionHeader h2 {
+    margin-bottom: var(--space-xs);
+}
+
+.sectionHeader p {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+}
+
+.unscheduledRocks {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+}
+
+.unscheduledRocks h3 {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-md);
+}
+
+.rocksList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.rockCard {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    cursor: grab;
+    transition: all var(--transition-fast);
+}
+
+.rockCard:hover {
+    border-color: var(--primary-400);
+}
+
+.rockContent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.rockContent input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-500);
+}
+
+.rockContent span.completed {
+    text-decoration: line-through;
+    color: var(--text-tertiary);
+}
+
+.rockMeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.roleTag {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.scheduleSelect {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.emptyText {
+    text-align: center;
+    color: var(--text-tertiary);
+    padding: var(--space-md);
+}
+
+/* Add Rock Form */
+.addRockForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--bg-glass);
+    border-radius: var(--radius-md);
+}
+
+.addRockActions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+/* Matrix Hint */
+.matrixHint {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+}
+
+.matrixHint h4 {
+    margin-bottom: var(--space-md);
+    color: var(--text-primary);
+}
+
+.quadrants {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-md);
+}
+
+.quadrant {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--bg-glass);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.q1 {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.q2 {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.q3 {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.q4 {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.matrixHint>p {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+}
+
+/* Week Calendar */
+.weekCalendar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+}
+
+.weekCalendar h3 {
+    margin-bottom: var(--space-lg);
+}
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-sm);
+}
+
+.dayColumn {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dayColumn.today {
+    border-color: var(--primary-500);
+}
+
+.dayHeader {
+    padding: var(--space-sm);
+    text-align: center;
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.dayName {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.dayNumber {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.today .dayName,
+.today .dayNumber {
+    color: var(--primary-400);
+}
+
+.dayContent {
+    flex: 1;
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.scheduledRock {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--primary-500);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    position: relative;
+}
+
+.scheduledRock.completed {
+    opacity: 0.6;
+}
+
+.scheduledRock.completed span {
+    text-decoration: line-through;
+}
+
+.scheduledRock input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--primary-500);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.scheduledRock span {
+    flex: 1;
+    word-break: break-word;
+}
+
+.unscheduleBtn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.scheduledRock:hover .unscheduleBtn {
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .plannerLayout {
+        grid-template-columns: 1fr;
+    }
+
+    .calendarGrid {
+        overflow-x: auto;
+    }
+
+    .dayColumn {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-md);
+    }
+}

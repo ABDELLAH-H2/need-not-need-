@@ -1,0 +1,132 @@
+/* Auth Pages Styles */
+
+.authPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+}
+
+.authContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1000px;
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(20px);
+}
+
+.authCard {
+    padding: var(--space-3xl);
+}
+
+.authHeader {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.authHeader h1 {
+    font-size: 1.75rem;
+    margin: var(--space-md) 0 var(--space-sm);
+    background: none;
+    -webkit-text-fill-color: var(--text-primary);
+}
+
+.authHeader p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.logo {
+    display: inline-block;
+}
+
+.authForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.errorMessage {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.authFooter {
+    margin-top: var(--space-xl);
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.authFooter a {
+    color: var(--primary-400);
+    font-weight: 500;
+}
+
+.authSide {
+    background: linear-gradient(135deg, var(--primary-900) 0%, var(--bg-tertiary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.authSide::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 60%);
+}
+
+.authQuote {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.authQuote blockquote {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0;
+    font-style: italic;
+}
+
+.authQuote cite {
+    display: block;
+    margin-top: var(--space-lg);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-style: normal;
+}
+
+@media (max-width: 768px) {
+    .authContainer {
+        grid-template-columns: 1fr;
+    }
+
+    .authSide {
+        display: none;
+    }
+
+    .authCard {
+        padding: var(--space-xl);
+    }
+}
